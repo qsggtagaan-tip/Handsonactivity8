@@ -1,0 +1,5 @@
+---
+- name: Disable UFW
+  service:
+    name: ufw
+    state: stopped

@@ -1,0 +1,48 @@
+---
+- name: Docker Directory
+  file:
+    path: docker
+    state: directory
+
+- name: Copy to remote
+  copy:
+    src: docker/
+    dest: docker/
+
+- name: Web Server
+  docker_image:
+    name: "{{ docker_web_image_name }}"
+    build:
+      path: "{{ docker_web_file_path }}"
+      pull: no
+    state: present
+    source: build
+  register: web_docker_img
+
+- name: Db Server
+  docker_image:
+    name: "{{ docker_db_image_name }}"
+    build:
+      path: "{{ docker_db_file_path }}"
+      pull: no
+    state: present
+    source: build
+  register: db_docker_img
+
+- name: Network routing
+  shell: iptables -F; iptables -X
+  when: web_docker_img.changed or db_docker_img.changed
+
+- name: Start Web Server 
+  docker_container:  
+    name: "{{ docker_web_container_name }}"
+    image: "{{ docker_web_image_name }}:{{ docker_web_image_tag }}"
+    state: started
+    ports: "{{ docker_web_ports }}"
+
+- name: Start DB Server
+  docker_container:
+    name: "{{ docker_db_container_name }}"
+    image: "{{ docker_db_image_name }}:{{ docker_db_image_tag }}"
+    published_ports: "{{ docker_db_ports }}"
+

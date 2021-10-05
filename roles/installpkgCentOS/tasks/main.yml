@@ -1,0 +1,22 @@
+---
+- name: Add repository for CentOS
+  copy:
+    src: "{{ src }}"
+    dest: "{{ dest }}"
+    mode: 0755
+  when: src is defined
+
+- name: DNF install packages
+  dnf:
+    name: "{{ package }}"
+    state: latest
+    update_cache: yes
+
+- name: Enable Services for CentOS
+  service:
+    name: "{{ service }}"
+    state: started
+    enabled: yes
+  when: service is defined
+
+

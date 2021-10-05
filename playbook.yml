@@ -1,0 +1,75 @@
+---
+- name: activity8
+  hosts: all
+  tags: lamp
+  tasks:
+    - name: Include global variables
+      include_vars:
+        file: config.yaml
+
+    - name: Install docker for Ubuntu
+      include_role:
+        name: installpkgubuntu
+      vars:
+        package:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg-agent
+          - software-properties-common
+          - python3
+          - python3-pip
+      when: ansible_facts['distribution'] == 'Ubuntu'
+
+    - name: Install docker for Ubuntu
+      include_role:
+        name: installpkgubuntu
+      vars:
+        url: "https://download.docker.com/linux/ubuntu/gpg"
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+        filename: "docker-ce"
+        package:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        service: docker
+        when: ansible_facts['distribution'] == 'Ubuntu'
+
+    - name: Install docker Centos
+      include_role:
+        name: installpkgCentOS
+      vars:
+        src: "{{ docker_repo }}"
+        dest: "/etc/yum.repos.d/docker-ce.repo"
+        package:
+          - docker-ce
+          - python3
+          - python3-pip
+        service: docker
+      when: ansible_facts['distribution'] == 'CentOS'
+
+    - name: Disable firewalld for CentOS
+      include_role:
+        name: stopfirewalld
+      when: ansible_facts['distribution'] == 'CentOS'
+
+    - name: Disable UFW for Ubunt
+      include_role:
+        name: stopufw
+      when: ansible_facts['distribution'] == 'Ubuntu'
+
+    - name: "Pip for installing docker modules"
+      include_role:
+        name: pipinstall
+      vars:
+        pippackage: docker
+
+    - name: Create user for docker group
+      include_role:
+        name: mk_docker_group
+
+    - name: Run LAMP
+      include_role:
+        name: lamp
+
+

@@ -1,0 +1,20 @@
+docker_repo: docker-ce.repo
+docker_user: sysad
+
+#For Web 
+docker_web_image_name: webserver
+docker_web_image_tag: latest
+docker_web_container_name: webserver
+docker_web_ports: 80:80
+docker_web_file_path: docker/webserver/
+
+#For DB
+docker_db_image_name: dbserver
+docker_db_image_tag: latest
+docker_db_container_name: dbserver
+docker_db_ports: 3306:3306
+docker_db_file_path: docker/dbserver/
+
+
+
+  
